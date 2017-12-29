@@ -37,3 +37,27 @@ func ExampleFileinfo_Type() {
 	fmt.Println(h)
 	// Output: image/jpeg
 }
+
+func ExampleFileinfo_FirstBytes() {
+	i, err := fileinfo.New("fixtures/image1.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer i.Close()
+
+	bytes, _ := i.FirstBytes()
+	fmt.Println(bytes)
+	// Output: /9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVRPUjo=
+}
+
+func ExampleFileinfo_LastBytes() {
+	i, err := fileinfo.New("fixtures/image1.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer i.Close()
+
+	bytes, _ := i.LastBytes()
+	fmt.Println(bytes)
+	// Output: q7/Hc/zf1oOcle9UZBk402VnwD6UK9l/ePvQqUQ//9k=
+}

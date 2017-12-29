@@ -2,6 +2,7 @@ package fileinfo
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -17,13 +18,14 @@ func New(fname string) (i *Fileinfo, err error) {
 		return
 	}
 
-	i = &Fileinfo{f}
+	i = &Fileinfo{File: f, Name: fname}
 	return
 }
 
 // Fileinfo extracts information about the passed file.
 type Fileinfo struct {
 	File *os.File
+	Name string
 }
 
 // Close closes the file, rendering it unusable for I/O.
@@ -61,4 +63,37 @@ func (i *Fileinfo) Type() (typ string, err error) {
 
 	typ = kind.MIME.Value
 	return
+}
+
+// FirstBytes returns the first 32 bytes of a file, base64 encoded.
+func (i *Fileinfo) FirstBytes() (bytes string, err error) {
+	buf := make([]byte, 32)
+	_, err = i.File.Read(buf)
+	if err == nil {
+		bytes = encode(buf)
+	}
+	return
+}
+
+// LastBytes returns the last 32 bytes of a file, base64 encoded.
+func (i *Fileinfo) LastBytes() (bytes string, err error) {
+	buf := make([]byte, 32)
+
+	stat, err := os.Stat(i.Name)
+	if err != nil {
+		return
+	}
+
+	start := stat.Size() - 32
+	_, err = i.File.ReadAt(buf, start)
+	if err == nil {
+		bytes = encode(buf)
+	}
+
+	return
+}
+
+// encode is a utility functiont that base64 encodes the slice of bytes.
+func encode(buf []byte) string {
+	return base64.StdEncoding.EncodeToString(buf)
 }
