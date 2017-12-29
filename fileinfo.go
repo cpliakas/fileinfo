@@ -3,8 +3,11 @@ package fileinfo
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"io/ioutil"
 	"os"
+
+	"gopkg.in/h2non/filetype.v1"
 )
 
 // New returns a new Fileinfo populated with the named file opened for reading.
@@ -42,4 +45,20 @@ func (i *Fileinfo) Hash() (hash string, err error) {
 	return
 }
 
-// https://github.com/h2non/filetype
+// Type returns the file type as detected from it's magic bits.
+func (i *Fileinfo) Type() (typ string, err error) {
+	b := make([]byte, 261)
+	_, err = i.File.Read(b)
+	if err != nil {
+		return
+	}
+
+	kind, unknown := filetype.Match(b)
+	if unknown != nil {
+		err = fmt.Errorf("unknown file type: %s", unknown)
+		return
+	}
+
+	typ = kind.MIME.Value
+	return
+}

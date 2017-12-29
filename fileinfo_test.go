@@ -25,3 +25,15 @@ func ExampleFileinfo_Hash() {
 	fmt.Println(h)
 	// Output: ace3598e21517c9db3e65621e7f578a4
 }
+
+func ExampleFileinfo_Type() {
+	i, err := fileinfo.New("fixtures/image1.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer i.Close()
+
+	h, _ := i.Type()
+	fmt.Println(h)
+	// Output: image/jpeg
+}
