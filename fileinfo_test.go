@@ -1,24 +1,27 @@
 package fileinfo_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/cpliakas/fileinfo"
 )
 
-func TestFileinfoHash(t *testing.T) {
+func TestNewMissing(t *testing.T) {
+	_, err := fileinfo.New("fixtures/missing.txt")
+	if err == nil {
+		t.Error("expected error, got nil")
+	}
+}
+
+func ExampleFileinfo_Hash() {
 	i, err := fileinfo.New("fixtures/image1.jpg")
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
+	defer i.Close()
 
-	got, err := i.Hash()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ex := "ace3598e21517c9db3e65621e7f578a4"
-	if got != ex {
-		t.Fatalf("expected %s, got %s", ex, got)
-	}
+	h, _ := i.Hash()
+	fmt.Println(h)
+	// Output: ace3598e21517c9db3e65621e7f578a4
 }
