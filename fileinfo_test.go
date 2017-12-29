@@ -14,6 +14,30 @@ func TestNewMissing(t *testing.T) {
 	}
 }
 
+func ExampleFileinfo_Name() {
+	i, err := fileinfo.New("fixtures/image1.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer i.Close()
+
+	n := i.Name()
+	fmt.Println(n)
+	// Output: fixtures/image1.jpg
+}
+
+func ExampleFileinfo_Basename() {
+	i, err := fileinfo.New("fixtures/image1.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer i.Close()
+
+	n := i.Basename()
+	fmt.Println(n)
+	// Output: image1.jpg
+}
+
 func ExampleFileinfo_Hash() {
 	i, err := fileinfo.New("fixtures/image1.jpg")
 	if err != nil {

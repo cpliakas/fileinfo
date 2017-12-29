@@ -23,19 +23,30 @@ func New(fname string) (i *Fileinfo, err error) {
 		return
 	}
 
-	i = &Fileinfo{file: f, stat: stat}
+	i = &Fileinfo{file: f, name: fname, stat: stat}
 	return
 }
 
 // Fileinfo extracts information about the passed file.
 type Fileinfo struct {
 	file *os.File
+	name string
 	stat os.FileInfo
 }
 
 // Close closes the file, rendering it unusable for I/O.
 func (i *Fileinfo) Close() error {
 	return i.file.Close()
+}
+
+// Name returns the file name.
+func (i *Fileinfo) Name() string {
+	return i.name
+}
+
+// Basename returns the basename of the file.
+func (i *Fileinfo) Basename() string {
+	return i.stat.Name()
 }
 
 // Hash returns the file's MD5 sum.
