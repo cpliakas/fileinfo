@@ -13,31 +13,36 @@ import (
 
 // New returns a new Fileinfo populated with the named file opened for reading.
 func New(fname string) (i *Fileinfo, err error) {
+	stat, err := os.Stat(fname)
+	if err != nil {
+		return
+	}
+
 	f, err := os.Open(fname)
 	if err != nil {
 		return
 	}
 
-	i = &Fileinfo{File: f, Name: fname}
+	i = &Fileinfo{file: f, stat: stat}
 	return
 }
 
 // Fileinfo extracts information about the passed file.
 type Fileinfo struct {
-	File *os.File
-	Name string
+	file *os.File
+	stat os.FileInfo
 }
 
 // Close closes the file, rendering it unusable for I/O.
 func (i *Fileinfo) Close() error {
-	return i.File.Close()
+	return i.file.Close()
 }
 
 // Hash returns the file's MD5 sum.
 func (i *Fileinfo) Hash() (hash string, err error) {
 	hasher := md5.New()
 
-	b, err := ioutil.ReadAll(i.File)
+	b, err := ioutil.ReadAll(i.file)
 	if err != nil {
 		return
 	}
@@ -50,7 +55,7 @@ func (i *Fileinfo) Hash() (hash string, err error) {
 // Type returns the file type as detected from it's magic bits.
 func (i *Fileinfo) Type() (typ string, err error) {
 	b := make([]byte, 261)
-	_, err = i.File.Read(b)
+	_, err = i.file.Read(b)
 	if err != nil {
 		return
 	}
@@ -68,7 +73,7 @@ func (i *Fileinfo) Type() (typ string, err error) {
 // FirstBytes returns the first 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 	buf := make([]byte, 32)
-	_, err = i.File.Read(buf)
+	_, err = i.file.Read(buf)
 	if err == nil {
 		bytes = encode(buf)
 	}
@@ -78,18 +83,10 @@ func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 // LastBytes returns the last 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) LastBytes() (bytes string, err error) {
 	buf := make([]byte, 32)
-
-	stat, err := os.Stat(i.Name)
-	if err != nil {
-		return
-	}
-
-	start := stat.Size() - 32
-	_, err = i.File.ReadAt(buf, start)
+	_, err = i.file.ReadAt(buf, i.stat.Size()-32)
 	if err == nil {
 		bytes = encode(buf)
 	}
-
 	return
 }
 
