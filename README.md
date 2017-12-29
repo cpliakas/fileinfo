@@ -36,7 +36,7 @@ func main() {
 	}
 	defer i.Close()
 
-	hash, _ := i.Hash()
-	fmt.Println(hash)
+	h, _ := i.Hash()
+	fmt.Println(h)
 }
 ```

@@ -41,3 +41,5 @@ func (i *Fileinfo) Hash() (hash string, err error) {
 	hash = hex.EncodeToString(hasher.Sum(nil))
 	return
 }
+
+// https://github.com/h2non/filetype
