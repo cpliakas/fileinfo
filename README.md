@@ -33,8 +33,9 @@ func main() {
 	if err != nil {
 		panic(err)
     }
+	defer i.Close()
 
-    hash, _ := i.Hash()
+	hash, _ := i.Hash()
 	fmt.Println(hash)
 }
 ```
