@@ -1,6 +1,7 @@
 # Scanner
 
 [![Build Status](https://travis-ci.org/cpliakas/fileinfo.svg?branch=master)](https://travis-ci.org/cpliakas/fileinfo)
+[![codecov](https://codecov.io/gh/cpliakas/fileinfo/branch/master/graph/badge.svg)](https://codecov.io/gh/cpliakas/fileinfo)
 [![GoDoc](https://godoc.org/github.com/cpliakas/fileinfo?status.svg)](https://godoc.org/github.com/cpliakas/fileinfo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cpliakas/fileinfo)](https://goreportcard.com/report/github.com/cpliakas/fileinfo)
 
@@ -32,7 +33,7 @@ func main() {
 	i, err := fileinfo.New("/path/to/file")
 	if err != nil {
 		panic(err)
-    }
+	}
 	defer i.Close()
 
 	hash, _ := i.Hash()
