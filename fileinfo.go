@@ -49,18 +49,9 @@ func (i *Fileinfo) Basename() string {
 	return i.stat.Name()
 }
 
-// Hash returns the file's MD5 sum.
-func (i *Fileinfo) Hash() (hash string, err error) {
-	hasher := md5.New()
-
-	b, err := ioutil.ReadAll(i.file)
-	if err != nil {
-		return
-	}
-
-	hasher.Write(b)
-	hash = hex.EncodeToString(hasher.Sum(nil))
-	return
+// Size returns the size of the file in bytes.
+func (i *Fileinfo) Size() int64 {
+	return i.stat.Size()
 }
 
 // Type returns the file type as detected from it's magic bits.
@@ -81,10 +72,24 @@ func (i *Fileinfo) Type() (typ string, err error) {
 	return
 }
 
+// Hash returns the file's MD5 sum.
+func (i *Fileinfo) Hash() (hash string, err error) {
+	hasher := md5.New()
+
+	b, err := ioutil.ReadAll(i.file)
+	if err != nil {
+		return
+	}
+
+	hasher.Write(b)
+	hash = hex.EncodeToString(hasher.Sum(nil))
+	return
+}
+
 // FirstBytes returns the first 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 	buf := make([]byte, 32)
-	_, err = i.file.Read(buf)
+	_, err = i.file.ReadAt(buf, 0)
 	if err == nil {
 		bytes = encode(buf)
 	}
@@ -94,14 +99,14 @@ func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 // LastBytes returns the last 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) LastBytes() (bytes string, err error) {
 	buf := make([]byte, 32)
-	_, err = i.file.ReadAt(buf, i.stat.Size()-32)
+	_, err = i.file.ReadAt(buf, i.Size()-32)
 	if err == nil {
 		bytes = encode(buf)
 	}
 	return
 }
 
-// encode is a utility functiont that base64 encodes the slice of bytes.
+// encode is a utility function that base64 encodes the slice of bytes.
 func encode(buf []byte) string {
 	return base64.StdEncoding.EncodeToString(buf)
 }
