@@ -6,8 +6,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"mime"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/h2non/filetype.v1"
 )
@@ -55,41 +57,39 @@ func (i *Fileinfo) Size() int64 {
 	return i.stat.Size()
 }
 
-// Type returns the file type as detected from it's magic bits.
+// Type returns the mime type.
 func (i *Fileinfo) Type() (typ string, err error) {
-	b := make([]byte, 261)
-	_, err = i.file.Read(b)
-	if err != nil {
-		return
-	}
 
-	kind, unknown := filetype.Match(b)
+	// Get the MIME type from the file's magic bits.
+	kind, unknown := filetype.MatchReader(i.file)
 	if unknown != nil {
 		err = fmt.Errorf("unknown file type: %s", unknown)
 		return
 	}
 
+	// Fall back to the file's extension.
 	typ = kind.MIME.Value
+	if typ == "" {
+		ext := filepath.Ext(i.name)
+		typ = mime.TypeByExtension(ext)
+	}
+
 	return
 }
 
 // Hash returns the file's MD5 sum.
 func (i *Fileinfo) Hash() (hash string, err error) {
-	hasher := md5.New()
-
-	b, err := ioutil.ReadAll(i.file)
-	if err != nil {
-		return
+	h := md5.New()
+	_, err = io.Copy(h, i.file)
+	if err == nil {
+		hash = hex.EncodeToString(h.Sum(nil))
 	}
-
-	hasher.Write(b)
-	hash = hex.EncodeToString(hasher.Sum(nil))
 	return
 }
 
 // FirstBytes returns the first 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) FirstBytes() (bytes string, err error) {
-	buf := make([]byte, 32)
+	buf := make([]byte, i.bufferSize())
 	_, err = i.file.ReadAt(buf, 0)
 	if err == nil {
 		bytes = encode(buf)
@@ -99,10 +99,26 @@ func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 
 // LastBytes returns the last 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) LastBytes() (bytes string, err error) {
-	buf := make([]byte, 32)
-	_, err = i.file.ReadAt(buf, i.Size()-32)
+	buf := make([]byte, i.bufferSize())
+	_, err = i.file.ReadAt(buf, i.offset())
 	if err == nil {
 		bytes = encode(buf)
+	}
+	return
+}
+
+func (i *Fileinfo) bufferSize() (size int64) {
+	size = i.Size()
+	if size > 32 {
+		size = 32
+	}
+	return
+}
+
+func (i *Fileinfo) offset() (off int64) {
+	off = i.Size() - 32
+	if off < 0 {
+		off = 0
 	}
 	return
 }
