@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	// Import the sqlite3 driver. We don't refer to anything exported by the
+	// package in this file which is why a blank import is required.
 	_ "github.com/mattn/go-sqlite3"
 )
 
