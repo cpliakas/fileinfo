@@ -32,7 +32,7 @@ func TestNewMissing(t *testing.T) {
 	}
 }
 
-func TestFileinfo_Name(t *testing.T) {
+func TestFileinfoName(t *testing.T) {
 	tests := []struct {
 		name string
 		ex   string
@@ -52,7 +52,7 @@ func TestFileinfo_Name(t *testing.T) {
 	}
 }
 
-func TestFileinfo_Basename(t *testing.T) {
+func TestFileinfoBasename(t *testing.T) {
 	tests := []struct {
 		name string
 		ex   string
@@ -72,7 +72,7 @@ func TestFileinfo_Basename(t *testing.T) {
 	}
 }
 
-func TestFileinfo_Hash(t *testing.T) {
+func TestFileinfoHash(t *testing.T) {
 	tests := []struct {
 		name string
 		ex   string
@@ -97,7 +97,7 @@ func TestFileinfo_Hash(t *testing.T) {
 	}
 }
 
-func TestFileinfo_FirstBytes(t *testing.T) {
+func TestFileinfoFirstBytes(t *testing.T) {
 
 	tests := []struct {
 		name string
@@ -123,7 +123,7 @@ func TestFileinfo_FirstBytes(t *testing.T) {
 	}
 }
 
-func TestFileinfo_LastBytes(t *testing.T) {
+func TestFileinfoLastBytes(t *testing.T) {
 
 	tests := []struct {
 		name string
