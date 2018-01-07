@@ -48,6 +48,7 @@ func TestFileinfo_Name(t *testing.T) {
 		if got != ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
 
@@ -67,6 +68,7 @@ func TestFileinfo_Basename(t *testing.T) {
 		if got != ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
 
@@ -86,10 +88,12 @@ func TestFileinfo_Hash(t *testing.T) {
 		got, err := i.Hash()
 		if err != nil {
 			t.Error("error calculating hash", err)
+			continue
 		}
 		if got != test.ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
 
@@ -110,10 +114,12 @@ func TestFileinfo_FirstBytes(t *testing.T) {
 		got, err := i.FirstBytes()
 		if err != nil {
 			t.Error("error reading file", err)
+			continue
 		}
 		if got != test.ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
 
@@ -134,14 +140,16 @@ func TestFileinfo_LastBytes(t *testing.T) {
 		got, err := i.LastBytes()
 		if err != nil {
 			t.Error("error reading file", err)
+			continue
 		}
 		if got != test.ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
 
-func TestFileinfo_Type(t *testing.T) {
+func TestFileinfoType(t *testing.T) {
 
 	tests := []struct {
 		name string
@@ -156,9 +164,11 @@ func TestFileinfo_Type(t *testing.T) {
 		got, err := i.Type()
 		if err != nil {
 			t.Error("error reading file", err)
+			continue
 		}
 		if got != test.ex {
 			t.Error("expected", test.ex, "got", got)
 		}
+		i.Close()
 	}
 }
