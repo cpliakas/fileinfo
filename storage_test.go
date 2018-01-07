@@ -31,3 +31,10 @@ func TestStorage(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestStorageBadPath(t *testing.T) {
+	_, err := fileinfo.NewStorage("/bad/path/fileinfo.db")
+	if err == nil {
+		t.Error("expected error")
+	}
+}
