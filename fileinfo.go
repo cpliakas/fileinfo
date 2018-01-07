@@ -25,15 +25,23 @@ func New(fname string) (i *Fileinfo, err error) {
 		return
 	}
 
-	i = &Fileinfo{file: f, name: fname, stat: stat}
+	i = &Fileinfo{
+		bufferSize: bufferSize(stat.Size()),
+		file:       f,
+		name:       fname,
+		offset:     offset(stat.Size()),
+		stat:       stat,
+	}
 	return
 }
 
 // Fileinfo extracts information about the passed file.
 type Fileinfo struct {
-	file *os.File
-	name string
-	stat os.FileInfo
+	bufferSize int64
+	file       *os.File
+	name       string
+	offset     int64
+	stat       os.FileInfo
 }
 
 // Close closes the file, rendering it unusable for I/O.
@@ -88,7 +96,7 @@ func (i *Fileinfo) Hash() (hash string, err error) {
 
 // FirstBytes returns the first 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) FirstBytes() (bytes string, err error) {
-	buf := make([]byte, i.bufferSize())
+	buf := make([]byte, i.bufferSize)
 	_, err = i.file.ReadAt(buf, 0)
 	if err == nil {
 		bytes = encode(buf)
@@ -98,24 +106,28 @@ func (i *Fileinfo) FirstBytes() (bytes string, err error) {
 
 // LastBytes returns the last 32 bytes of a file, base64 encoded.
 func (i *Fileinfo) LastBytes() (bytes string, err error) {
-	buf := make([]byte, i.bufferSize())
-	_, err = i.file.ReadAt(buf, i.offset())
+	buf := make([]byte, i.bufferSize)
+	_, err = i.file.ReadAt(buf, i.offset)
 	if err == nil {
 		bytes = encode(buf)
 	}
 	return
 }
 
-func (i *Fileinfo) bufferSize() (size int64) {
-	size = i.Size()
-	if size > 32 {
-		size = 32
+// bufferSize calculated how many bytes are read when extracting the first and
+// last bytes of the file.
+func bufferSize(size int64) (bufsize int64) {
+	bufsize = size
+	if bufsize > 32 {
+		bufsize = 32
 	}
 	return
 }
 
-func (i *Fileinfo) offset() (off int64) {
-	off = i.Size() - 32
+// offset returns the file position to start at when reading the last bytes of
+// the file.
+func offset(size int64) (off int64) {
+	off = size - 32
 	if off < 0 {
 		off = 0
 	}
